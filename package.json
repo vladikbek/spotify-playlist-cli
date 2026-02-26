@@ -1,0 +1,25 @@
+{
+  "name": "@vbr/spotify-playlist-cli",
+  "version": "0.1.0",
+  "description": "CLI for Spotify playlist/account management (user OAuth)",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "spm": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "node scripts/postbuild.cjs",
+    "dev": "tsc --watch",
+    "test": "npm run build && node --test",
+    "test:live": "SPM_LIVE_TEST=1 npm test"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "typescript": "^5.7.3"
+  }
+}
