@@ -1,4 +1,4 @@
-# @vbr/spotify-cli
+# Spotify CLI
 
 TypeScript CLI for Spotify Web API public endpoints.
 

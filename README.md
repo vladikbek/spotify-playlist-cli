@@ -1,4 +1,4 @@
-# @vbr/spotify-playlist-cli
+# Spotify Playlist CLI
 
 `spm` is a Node.js/TypeScript CLI for Spotify account and playlist management.
 
