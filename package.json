@@ -1,5 +1,5 @@
 {
-  "name": "@vbr/spotify-playlist-cli",
+  "name": "spotify-playlist-cli",
   "version": "0.1.0",
   "description": "CLI for Spotify playlist/account management (user OAuth)",
   "private": true,
