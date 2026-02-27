@@ -170,7 +170,7 @@ export async function runPlaylistListManaged(opts: {
 
 export async function runPlaylistCreateManaged(opts: {
   name: string;
-  description?: string;
+  description?: string | null;
   public?: boolean;
   collaborative?: boolean;
   timeoutMs: number;
@@ -190,7 +190,7 @@ export async function runPlaylistCreateManaged(opts: {
     method: "POST",
     body: {
       name,
-      description: opts.description,
+      description: opts.description ?? undefined,
       public: opts.public,
       collaborative: opts.collaborative
     },
@@ -230,7 +230,7 @@ export async function runPlaylistUpdateManaged(
   input: string,
   opts: {
     name?: string;
-    description?: string;
+    description?: string | null;
     public?: boolean;
     collaborative?: boolean;
     timeoutMs: number;
@@ -240,7 +240,7 @@ export async function runPlaylistUpdateManaged(
   const id = parsePlaylistId(input);
   const body: Record<string, unknown> = {};
   if (opts.name !== undefined) body.name = opts.name;
-  if (opts.description !== undefined) body.description = opts.description;
+  if (opts.description !== undefined && opts.description !== null) body.description = opts.description;
   if (opts.public !== undefined) body.public = opts.public;
   if (opts.collaborative !== undefined) body.collaborative = opts.collaborative;
 

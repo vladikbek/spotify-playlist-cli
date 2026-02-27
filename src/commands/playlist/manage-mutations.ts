@@ -5,6 +5,7 @@ import { parsePlaylistId } from "../../playlist/refs";
 import {
   planCleanup,
   planDedup,
+  planReverse,
   planShuffle,
   planSort,
   planTrim,
@@ -197,6 +198,28 @@ export async function runPlaylistSortManaged(
     },
     `sort:${opts.by}:${opts.order}`,
     (items) => planSort(items, opts.by, opts.order)
+  );
+}
+
+export async function runPlaylistReverseManaged(
+  input: string,
+  opts: {
+    apply?: boolean;
+    force?: boolean;
+    timeoutMs: number;
+    account?: string;
+  }
+): Promise<CommandResult> {
+  return runTransformAction(
+    input,
+    {
+      timeoutMs: opts.timeoutMs,
+      account: opts.account,
+      apply: opts.apply,
+      force: opts.force
+    },
+    "reverse",
+    (items) => planReverse(items)
   );
 }
 

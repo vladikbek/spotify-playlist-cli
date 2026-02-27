@@ -55,7 +55,8 @@ Account:
 Playlist management:
 
 - `playlist get|list|create|update|add`
-- `playlist shuffle|dedup|cleanup|sort|trim`
+- `playlist random|generate`
+- `playlist shuffle|dedup|cleanup|sort|trim|reverse`
 - `playlist copy|export|import`
 - `playlist cover get|set`
 
@@ -80,9 +81,24 @@ spm playlist list --all --account main
 # Add track to 1-based position 3
 spm playlist add <playlist_ref> <track_ref> --pos 3 --account main
 
+# Generate up to 100 tracks from 3-5 seed tracks (preview)
+spm playlist generate "trackA,trackB,trackC" --to <playlist_ref> --mode append --account main
+
+# Generate and create a new playlist with results
+spm playlist generate "trackA,trackB,trackC" --to-new --name "Generated 100" --apply --account main
+
+# Generate cleaner set with quality filters (defaults)
+spm playlist generate "trackA,trackB,trackC" --to-new --name "Generated 100" --apply --min-popularity 30 --max-duration-ms 240000 --seed-profile --account main
+
+# Exclude unwanted tracks and disable key diversification
+spm playlist generate "trackA,trackB,trackC" --to <playlist_ref> --mode append --exclude "badTrack1,badTrack2" --no-diversify-keys --account main
+
 # Deduplicate (preview), then apply
 spm playlist dedup <playlist_ref> --keep first --account main
 spm playlist dedup <playlist_ref> --keep first --apply --account main
+
+# Reverse tracks in a playlist
+spm playlist reverse <playlist_ref> --apply --account main
 
 # Export/import tracks payload (spm v2 format)
 spm playlist export <playlist_ref> --out backup.b64 --account main

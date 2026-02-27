@@ -11,9 +11,11 @@ import {
   runPlaylistListManaged,
   runPlaylistUpdateManaged
 } from "./commands/playlist/manage-core";
+import { runPlaylistGenerateManaged } from "./commands/playlist/manage-generate";
 import {
   runPlaylistCleanupManaged,
   runPlaylistDedupManaged,
+  runPlaylistReverseManaged,
   runPlaylistShuffleManaged,
   runPlaylistSortManaged,
   runPlaylistTrimManaged
@@ -36,6 +38,7 @@ import { completionScriptFor } from "./completion";
 import { CliError, exitCodeForError, toCliError } from "./errors";
 import { emitError, emitSuccess } from "./output";
 import { CommandResult, GlobalOptions } from "./types";
+import { parseTrackUrisInput } from "./playlist/refs";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
@@ -319,6 +322,96 @@ function createProgram(): Command {
   sharedFlags(playlist.commands.at(-1)!);
 
   playlist
+    .command("generate")
+    .argument("<seed_track_refs>", "3-5 track refs (comma/newline), or '-' for stdin")
+    .option("--target-size <N>", "Target number of tracks (1-100)", parsePositiveIntOption("target-size"))
+    .option("--min-popularity <N>", "Minimum track popularity (0-100)", (value: string) => {
+      const n = Number(value);
+      if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0 || n > 100) {
+        throw new CliError("INVALID_USAGE", "min-popularity must be an integer between 0 and 100.");
+      }
+      return n;
+    })
+    .option("--max-duration-ms <N>", "Maximum track duration in ms", parsePositiveIntOption("max-duration-ms"))
+    .option("--exclude <track_refs>", "Exclude track refs from result")
+    .option("--to <target_ref>", "Target existing playlist URL/URI/ID")
+    .option("--to-new", "Create a new target playlist")
+    .option("--name <name>", "Target playlist name for --to-new")
+    .option("--description <text>", "Target playlist description for --to-new")
+    .addOption(new Option("--mode <mode>", "append|replace (for --to)").choices(["append", "replace"]))
+    .option("--public", "For --to-new, create as public")
+    .option("--private", "For --to-new, create as private")
+    .option("--no-seed-profile", "Disable seed-derived recommendation profile")
+    .option("--no-diversify-keys", "Disable key diversity filter")
+    .option("--max-key-share <N>", "Max share per musical key (1-100), percent of target", (value: string) => {
+      const n = Number(value);
+      if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > 100) {
+        throw new CliError("INVALID_USAGE", "max-key-share must be an integer between 1 and 100.");
+      }
+      return n;
+    })
+    .option("--apply", "Apply changes")
+    .option("--force", "Bypass snapshot guard for --mode replace")
+    .action(
+      async (
+        seedInput: string,
+        options: {
+          targetSize?: number;
+          minPopularity?: number;
+          maxDurationMs?: number;
+          exclude?: string;
+          to?: string;
+          toNew?: boolean;
+          name?: string;
+          description?: string;
+          mode?: "append" | "replace";
+          public?: boolean;
+          private?: boolean;
+          seedProfile?: boolean;
+          diversifyKeys?: boolean;
+          maxKeyShare?: number;
+          apply?: boolean;
+          force?: boolean;
+        },
+        command: Command
+      ) => {
+        await runHandled("playlist.generate", command, async (global) => {
+          if (options.public && options.private) {
+            throw new CliError("INVALID_USAGE", "Use either --public or --private, not both.");
+          }
+          const excludeTrackUris = options.exclude
+            ? await parseTrackUrisInput(options.exclude, {
+                noInput: global.noInput
+              })
+            : [];
+          const isPublic = options.public ? true : options.private ? false : undefined;
+          return runPlaylistGenerateManaged(seedInput, {
+            targetSize: options.targetSize ?? 100,
+            minPopularity: options.minPopularity ?? 30,
+            maxDurationMs: options.maxDurationMs ?? 240000,
+            excludeTrackUris,
+            to: options.to,
+            toNew: Boolean(options.toNew),
+            name: options.name,
+            description: options.description,
+            mode: options.mode,
+            isPublic,
+            seedProfile: options.seedProfile ?? true,
+            diversifyKeys: options.diversifyKeys ?? true,
+            maxKeySharePercent: options.maxKeyShare ?? 25,
+            apply: Boolean(options.apply),
+            force: Boolean(options.force),
+            noInput: global.noInput,
+            market: global.market,
+            timeoutMs: global.timeoutMs,
+            account: global.account
+          });
+        });
+      }
+    );
+  sharedFlags(playlist.commands.at(-1)!);
+
+  playlist
     .command("shuffle")
     .argument("<ref>", "Spotify playlist URL/URI/ID")
     .option("--group-size <N>", "Shuffle inside sequential groups of N tracks", parsePositiveIntOption("group-size"))
@@ -409,6 +502,23 @@ function createProgram(): Command {
         );
       }
     );
+  sharedFlags(playlist.commands.at(-1)!);
+
+  playlist
+    .command("reverse")
+    .argument("<ref>", "Spotify playlist URL/URI/ID")
+    .option("--apply", "Apply changes")
+    .option("--force", "Bypass snapshot guard")
+    .action(async (input: string, options: { apply?: boolean; force?: boolean }, command: Command) => {
+      await runHandled("playlist.reverse", command, async (global) =>
+        runPlaylistReverseManaged(input, {
+          apply: Boolean(options.apply),
+          force: Boolean(options.force),
+          timeoutMs: global.timeoutMs,
+          account: global.account
+        })
+      );
+    });
   sharedFlags(playlist.commands.at(-1)!);
 
   playlist

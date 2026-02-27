@@ -203,6 +203,14 @@ export function planSort(
   };
 }
 
+export function planReverse(items: PlaylistItemNormalized[]): { uris: string[]; droppedEpisodes: number } {
+  const filtered = toTrackOnly(items);
+  return {
+    uris: [...filtered.uris].reverse(),
+    droppedEpisodes: filtered.droppedEpisodes
+  };
+}
+
 export function planTrim(
   items: PlaylistItemNormalized[],
   keep: number,

@@ -11,7 +11,7 @@ import { actionSummaryHuman } from "./manage-mutations";
 
 async function createPlaylistForCopy(opts: {
   name: string;
-  description?: string;
+  description?: string | null;
   isPublic?: boolean;
   timeoutMs: number;
   account?: string;
@@ -20,7 +20,7 @@ async function createPlaylistForCopy(opts: {
     method: "POST",
     body: {
       name: opts.name,
-      description: opts.description,
+      description: opts.description ?? undefined,
       public: opts.isPublic,
       collaborative: false
     },
@@ -46,7 +46,7 @@ export async function runPlaylistCopyManaged(
     to?: string;
     toNew?: boolean;
     name?: string;
-    description?: string;
+    description?: string | null;
     mode?: "append" | "replace";
     isPublic?: boolean;
     apply?: boolean;
@@ -272,7 +272,7 @@ export async function runPlaylistImportManaged(
     to?: string;
     toNew?: boolean;
     name?: string;
-    description?: string;
+    description?: string | null;
     mode?: "append" | "replace";
     isPublic?: boolean;
     noInput: boolean;

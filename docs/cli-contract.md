@@ -25,6 +25,8 @@ Playlist management commands:
 - `playlist get <ref> [--tracks] [--limit <N>] [--offset <N>]`
 - `playlist list [--all] [--limit <N>] [--offset <N>]`
 - `playlist create --name <name> [--description <text>] [--public|--private] [--collaborative]`
+- `playlist random [--name <name>] [--description <text>] [--genre <genre>] [--public|--private]`
+- `playlist generate <seed_track_refs|'-'> [--target-size <N>] [--min-popularity <N>] [--max-duration-ms <N>] [--exclude <track_refs>] [--to <target_ref>|--to-new] [--name <name>] [--description <text>] [--mode append|replace] [--public|--private] [--seed-profile] [--no-seed-profile] [--diversify-keys] [--no-diversify-keys] [--max-key-share <N>] [--apply] [--force]`
 - `playlist update <ref> [--name <name>] [--description <text>] [--public|--private] [--collaborative|--no-collaborative]`
 - `playlist add <ref> <track_refs|'-'> --pos <1-based>`
 - `playlist shuffle <ref> [--group-size <N>|--groups <N>] [--seed <N>] [--apply] [--force]`
@@ -32,6 +34,7 @@ Playlist management commands:
 - `playlist cleanup <ref> [--market <XX>] [--apply] [--force]`
 - `playlist sort <ref> --by added_at|popularity [--order asc|desc] [--apply] [--force]`
 - `playlist trim <ref> --keep <N> [--from start|end] [--apply] [--force]`
+- `playlist reverse <ref> [--apply] [--force]`
 - `playlist copy <source_ref> --to <target_ref> --mode append|replace [--apply] [--force]`
 - `playlist copy <source_ref> --to-new --name <name> [--public|--private] [--description <text>] [--apply]`
 - `playlist export <ref> [--out <path|->]`
@@ -54,6 +57,17 @@ No legacy alias is supported: `playlist <ref>` is invalid. Use `playlist get <re
 - `--account <nameOrId>`
 - `--version`
 - `-h, --help`
+
+## Playlist generate details
+
+- `--target-size`: default `100`, must be `1..100`.
+- `--min-popularity`: default `30`, must be `0..100`.
+- `--max-duration-ms`: default `240000`.
+- `--exclude`: comma/newline-separated track refs to filter out from recommendations.
+- `--seed-profile` is enabled by default and applies quality-aware target attributes from seed audio features.
+- `--no-seed-profile` disables seed-derived `target_*` query parameters; only quality filters are applied.
+- `--diversify-keys` is enabled by default; `--no-diversify-keys` disables key share enforcement.
+- `--max-key-share`: default `25`; valid only with `--diversify-keys`.
 
 ## Safety Rules
 
